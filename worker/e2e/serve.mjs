@@ -29,7 +29,9 @@ const server = http.createServer(async (req,res)=>{
     if(req.headers["x-admin-token"]!=="test-e2e-moderator-key"){
       json(res,{detail:"Moderator credentials incorrect"},403);return;
     }
-    res.setHeader("Set-Cookie","rmp_browser_test_session=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=2592000");
+    let body="";for await(const chunk of req)body+=chunk;
+    const remember=JSON.parse(body||"{}").remember===true;
+    res.setHeader("Set-Cookie","rmp_browser_test_session=1; Path=/; HttpOnly; SameSite=Strict"+(remember?"; Max-Age=2592000":""));
     json(res,{authenticated:true,remember:true});return;
   }
   if(path==="/api/admin/logout" && req.method==="POST"){
