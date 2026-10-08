@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#462713">
+<meta name="description" content="Rate My Poo is back! Upload, browse and rate the internet's strangest photos. No adverts.">
+<title>Rate My Poo — The Internet's Strangest Classic</title>
+<link rel="stylesheet" href="./static/site.css">
+</head>
+<body>
+<header class="masthead"><div class="shell mast-inner"><a class="logo" href="#home">💩 <span>Rate My Poo!<small>THE INTERNET'S STRANGEST CLASSIC RETURNS</small></span></a><div class="sticker">EST. 2000s<br>100% AD-FREE</div></div></header>
+<nav class="nav" aria-label="Main menu"><div class="shell" id="nav">
+<button data-page="home">RATE A POO</button><button data-page="top">TOP 20</button><button data-page="bottom">BOTTOM 20</button><button data-page="featured">STAFF FAVOURITES</button><button data-page="new">LATEST</button><button data-page="upload">SUBMIT YOUR POO</button><button data-page="about">ABOUT</button>
+</div></nav>
+<div class="shell columns">
+<main>
+<div id="message" role="status" class="message" hidden></div>
+<section class="panel page" id="home-page"><h2>RATE THIS POO!</h2><div class="inner"><p class="eyebrow">You be the judge</p><h1>Beauty is in the eye of the beholder.</h1><p>Give the latest contender a rating from 1 (awful) to 10 (magnificent).</p><div id="viewer" aria-live="polite"><p>Loading the gallery…</p></div></div></section>
+<section class="panel page" id="list-page" hidden><h2 id="list-title">THE GALLERY</h2><div class="inner"><label for="search">Find a submission</label><input class="text-field" id="search" type="search" maxlength="80" placeholder="Search by title…"><div id="gallery" class="gallery"></div></div></section>
+<section class="panel page" id="upload-page" hidden><h2>SUBMIT YOUR POO</h2><div class="inner"><h1>Think you've got a winner?</h1><p>No account needed. Each photo is reviewed before it appears publicly.</p><form id="upload-form">
+<label for="title">Photo title (required)</label><input class="text-field" id="title" name="title" required minlength="3" maxlength="90" placeholder="The Great Escape">
+<label for="nickname">Nickname (optional)</label><input class="text-field" id="nickname" name="nickname" maxlength="35" placeholder="Anonymous">
+<label for="photo">Photo (JPEG, PNG or WebP; max 6 MB)</label><input class="text-field" id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+<input class="honey" tabindex="-1" autocomplete="off" name="website" aria-hidden="true" type="text">
+<label class="check"><input id="agree" name="agree" type="checkbox" value="true" required> I am 18 or over, own this image, have permission to publish it and confirm it does not show an identifiable person or illegal content.</label>
+<button id="upload-submit" class="btn" type="submit">SUBMIT FOR APPROVAL →</button><p id="upload-status" role="status"></p></form>
+<div class="notice"><strong>Community rule:</strong> No nudity, identifiable people, harassment, illegal content or personal information. Images may be removed without notice. We do not publish your photo until a moderator approves it.</div>
+</div></section>
+<section class="panel page" id="about-page" hidden><h2>ABOUT RATE MY POO</h2><div class="inner"><h1>Bringing the weird web back.</h1><p>A nostalgic, independent recreation inspired by the 2000s phenomenon: simple scores, hilarious titles and no adverts or trackers.</p><p>Submitters must own the rights to their photo. Submissions are privately reviewed; approved photos can be rated or reported. Anonymous nicknames are public. Photos can be removed by a moderator.</p><h3>Privacy and data</h3><p>We save your submission, nickname, ratings and a one-way pseudonymous technical identifier to limit abuse. Please don't include personal information in titles or pictures. Images have embedded metadata removed before storage.</p><p>Before public launch, the site owner must publish a contact address, full privacy policy, retention policy and takedown procedure.</p></div></section>
+<section class="panel page" id="admin-page" hidden><h2>MODERATION DESK</h2><div class="inner"><p>Private access for the site moderator. The key stays in this tab and is not stored in your browser.</p><label for="admin-token">Moderator key</label><input class="text-field" id="admin-token" type="password" autocomplete="off" placeholder="Enter moderator key"><button class="btn" id="load-pending" type="button">LOAD SUBMISSIONS</button><div id="pending-list" class="gallery moderator"></div><h3>Published photos</h3><div id="published-list" class="gallery moderator"></div><h3>Abuse reports</h3><div id="report-list"></div></div></section>
+</main>
+<aside><section class="panel"><h2>THE POO BOARD</h2><div class="inner menu"><button data-page="home">🎯 Rate a poo</button><button data-page="top">🏆 Top 20</button><button data-page="bottom">📉 Bottom 20</button><button data-page="featured">⭐ Staff favourites</button><button data-page="new">🕒 Latest uploads</button><button data-page="upload">📸 Submit a photo</button></div></section>
+<section class="panel"><h2>POO-O-METER</h2><div class="inner meter"><strong id="total-count">—</strong><span>approved submissions</span></div></section>
+<section class="panel"><h2>NO ADS. NO NONSENSE.</h2><div class="inner"><p>All the charm of the early web. None of the flashing banners or pop-ups.</p><p class="tiny" id="api-status">Checking website connection…</p></div></section></aside>
+</div>
+<footer class="foot">RATE MY POO • AN AD-FREE REVIVAL • <button data-page="about">RULES &amp; PRIVACY</button> • <button data-page="admin">MODERATOR</button></footer>
+<script src="./config.js"></script><script src="./static/site.js" defer></script>
+</body></html>
