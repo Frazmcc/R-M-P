@@ -1,0 +1,10 @@
+name = "rate-my-poo-api"
+main = "src/index.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[images]
+binding = "IMAGES"
+
+[vars]
+RMP_ALLOWED_ORIGINS = "https://frazmcc.github.io,https://rate-my-poo.com,https://www.rate-my-poo.com"
