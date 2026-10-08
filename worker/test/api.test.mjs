@@ -85,10 +85,15 @@ test("pending images are never served through public route",async()=>{
   const response=await handle(new Request("https://api.example/api/images/101"),env,()=>query);
   assert.equal(response.status,404);
 });
-test("moderator endpoint needs a token",async()=>{
+test("moderator endpoint requires a signed browser session",async()=>{
   const {query}=makeQuery();
-  const forbidden=await handle(new Request("https://api.example/api/admin/pending"),env,()=>query);
-  assert.equal(forbidden.status,403);
+  const forbidden=await handle(new Request("https://www.rate-my-poo.com/api/admin/pending"),env,()=>query);
+  assert.equal(forbidden.status,401);
+  // Sending the raw moderator key to protected APIs is no longer accepted.
+  const rawKey=await handle(new Request("https://www.rate-my-poo.com/api/admin/pending",{
+    headers:{"X-Admin-Token":env.RMP_ADMIN_TOKEN}
+  }),env,()=>query);
+  assert.equal(rawKey.status,401);
 });
 
 test("validation failures expose CORS only to approved site origins",async()=>{
