@@ -240,6 +240,13 @@ def create_app(database_url=None, admin_token=None, secret_key=None):
             rows = db.scalars(select(Entry).where(Entry.status == "pending").order_by(Entry.created.asc()).limit(100)).all()
             return [{"id": x.id, "title": x.title, "nickname": x.nickname, "created": x.created} for x in rows]
 
+    @api.get("/api/admin/approved")
+    def approved(x_admin_token: str | None = Header(None)):
+        auth(x_admin_token)
+        with Session() as db:
+            rows = db.execute(summary_query().order_by(Entry.created.desc()).limit(100)).all()
+            return [public_row(x) for x in rows]
+
     @api.get("/api/admin/reports")
     def reports(x_admin_token: str | None = Header(None)):
         auth(x_admin_token)
