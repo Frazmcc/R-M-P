@@ -1,4 +1,6 @@
 name = "rate-my-poo-api"
+# Public account identifier taken from the Cloudflare dashboard URL shared by the site owner.
+account_id = "2b6e95dbd59fadf88d69fc5e474a6562"
 main = "src/index.mjs"
 compatibility_date = "2026-10-01"
 workers_dev = true
