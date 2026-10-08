@@ -96,8 +96,10 @@ function imageResponse(data, privateImage) {
   } });
 }
 async function processPhoto(file, env) {
-  if (!(file instanceof File) || !TYPES.has(file.type) || file.size > MAX_ORIGINAL || file.size === 0)
+  if (!(file instanceof File) || !TYPES.has(file.type) || file.size === 0)
     throw Object.assign(new Error("Choose a JPEG, PNG or WebP under 6 MB"), {status: 400});
+  if (file.size > MAX_ORIGINAL)
+    throw Object.assign(new Error("Image must be under 6 MB"), {status: 413});
   if (!env.IMAGES) throw Object.assign(new Error("Server image converter is not configured"), {status:503});
   // Source image is streamed to the Images transformation service; it is NEVER uploaded to permanent storage.
   const conversion = await env.IMAGES.input(file.stream())
