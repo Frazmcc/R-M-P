@@ -116,7 +116,7 @@ async function loadModeration(){
     for(const item of reports){
       const p=document.createElement("p");p.textContent="Photo #"+item.entry_id+": "+item.reason+" ";
       const remove=document.createElement("button");remove.className="btn secondary";remove.dataset.moderate=item.entry_id;remove.dataset.action="remove";remove.textContent="Remove photo";
-      p.append(remove);reportsNode.append(p);
+      const dismiss=document.createElement("button");dismiss.className="btn secondary";dismiss.dataset.dismissReport=item.id;dismiss.textContent="Dismiss report";p.append(remove,dismiss);reportsNode.append(p);
     }
   }catch(e){alertMessage(e.message,true);$("#pending-list").textContent="Unable to load moderation queue.";}
 }
@@ -143,6 +143,12 @@ document.addEventListener("click", async e=>{
     catch(err){alertMessage(err.message,true);}return;
   }
   if(e.target.closest("#load-pending")){await loadModeration();return;}
+  const dismiss=e.target.closest("[data-dismiss-report]");
+  if(dismiss){
+    try{await request("/api/admin/reports/"+dismiss.dataset.dismissReport+"/dismiss",{method:"POST",headers:{"X-Admin-Token":$("#admin-token").value}});alertMessage("Report dismissed.");await loadModeration();}
+    catch(err){alertMessage(err.message,true);}
+    return;
+  }
   const mod=e.target.closest("[data-moderate]");
   if(mod){
     if(mod.dataset.action==="remove" && !confirm("Remove this published photo?"))return;
