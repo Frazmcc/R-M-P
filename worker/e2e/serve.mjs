@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { resolve, sep, extname } from "node:path";
 
 const root = resolve("public");
-const types = {".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".xml":"application/xml; charset=utf-8",".txt":"text/plain; charset=utf-8"};
+const types = {".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".xml":"application/xml; charset=utf-8",".txt":"text/plain; charset=utf-8",".svg":"image/svg+xml",".png":"image/png"};
 const fixture = {id:1,title:"The Mobile Test Poo",nickname:"Test Visitor",created:1,featured:false,votes:12,average:8.5,image:"/api/images/1"};
 const json = (res,data,status=200)=>{res.writeHead(status,{"Content-Type":"application/json"});res.end(JSON.stringify(data));};
 const server = http.createServer(async (req,res)=>{
