@@ -187,15 +187,17 @@ document.addEventListener("click", async e=>{
 });
 $("#upload-form").addEventListener("submit",async event=>{
   event.preventDefault();
+  // DOM event.currentTarget becomes null after the first await in browsers.
+  const form = event.currentTarget;
   const button=$("#upload-submit"), status=$("#upload-status");
   if(!API){status.textContent="The upload server is not connected.";return;}
   const file=$("#photo").files[0];
   if(!file || file.size>6*1024*1024){status.textContent="Choose an image smaller than 6 MB.";return;}
   button.disabled=true;status.textContent="Uploading securely…";
   try{
-    const result=await request("/api/upload",{method:"POST",body:new FormData(event.currentTarget)});
+    const result=await request("/api/upload",{method:"POST",body:new FormData(form)});
     status.textContent=result.message+" Reference #"+result.id;
-    event.currentTarget.reset();
+    form.reset();
   }catch(err){status.textContent=err.message;}
   finally{button.disabled=false;}
 });
