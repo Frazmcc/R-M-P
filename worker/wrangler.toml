@@ -23,3 +23,8 @@ run_worker_first = ["/api/*"]
 [[routes]]
 pattern = "www.rate-my-poo.com"
 custom_domain = true
+
+# Make the bare domain resolvable using the same Worker origin.
+[[routes]]
+pattern = "rate-my-poo.com"
+custom_domain = true
