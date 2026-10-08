@@ -67,7 +67,20 @@
 <div class="notice"><strong>Community rule:</strong> No nudity, identifiable people, harassment, illegal content or personal information. Images may be removed without notice. We do not publish your photo until a moderator approves it.</div>
 </div></section>
 <section class="panel page" id="about-page" hidden><h2>ABOUT RATE MY POO</h2><div class="inner"><h1>Bringing the weird web back.</h1><p>A nostalgic, independent recreation inspired by the 2000s phenomenon: simple scores, hilarious titles and no adverts or trackers.</p><p>Submitters must own the rights to their photo. Submissions are privately reviewed; approved photos can be rated or reported. Anonymous nicknames are public. Photos can be removed by a moderator.</p><h3>Privacy and data</h3><p>We save your submission, nickname, ratings and a one-way pseudonymous technical identifier to limit abuse. Please don't include personal information in titles or pictures. Images have embedded metadata removed before storage.</p><p>Before public launch, the site owner must publish a contact address, full privacy policy, retention policy and takedown procedure.</p></div></section>
-<section class="panel page" id="admin-page" hidden><h2>MODERATION DESK</h2><div class="inner"><p>Private access for the site moderator. The key stays in this tab and is not stored in your browser.</p><label for="admin-token">Moderator key</label><input class="text-field" id="admin-token" type="password" autocomplete="off" placeholder="Enter moderator key"><button class="btn" id="load-pending" type="button">LOAD SUBMISSIONS</button><div id="pending-list" class="gallery moderator"></div><h3>Published photos</h3><div id="published-list" class="gallery moderator"></div><h3>Abuse reports</h3><div id="report-list"></div></div></section>
+<section class="panel page" id="admin-page" hidden><h2>MODERATION DESK</h2><div class="inner">
+<p id="admin-session-status" role="status" aria-live="polite">Checking this browser's moderator session…</p>
+<div id="admin-login" hidden>
+<p>Enter the moderator key to sign in. Your key is never saved in browser storage.</p>
+<form id="admin-login-form">
+<label for="admin-token">Moderator key</label><input class="text-field" id="admin-token" name="moderator-key" type="password" autocomplete="off" required placeholder="Enter moderator key">
+<label class="check"><input id="remember-browser" name="remember-browser" type="checkbox" checked> <span><strong>Remember this browser</strong><small class="field-hint admin-hint">Stay signed in for up to 30 days since your last visit. Only use this on a private computer.</small></span></label>
+<button class="btn" id="load-pending" type="submit">SIGN IN SECURELY</button>
+</form></div>
+<div id="admin-logged-in" hidden>
+<div class="admin-session-actions"><p>Signed in on this browser. The moderator key is not stored locally.</p><button class="btn secondary" id="admin-signout" type="button">SIGN OUT THIS BROWSER</button></div>
+<h3>Awaiting approval</h3><div id="pending-list" class="gallery moderator"></div><h3>Published photos</h3><div id="published-list" class="gallery moderator"></div><h3>Abuse reports</h3><div id="report-list"></div>
+</div>
+</div></section>
 </main>
 <aside><section class="panel"><h2>THE POO BOARD</h2><div class="inner menu"><button data-page="home">🎯 Rate a poo</button><button data-page="top">🏆 Top 20</button><button data-page="bottom">📉 Bottom 20</button><button data-page="featured">⭐ Staff favourites</button><button data-page="new">🕒 Latest uploads</button><button data-page="upload">📸 Submit a photo</button></div></section>
 <section class="panel"><h2>POO-O-METER</h2><div class="inner meter"><strong id="total-count">—</strong><span>approved submissions</span></div></section>
