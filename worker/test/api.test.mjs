@@ -75,8 +75,10 @@ test("original-format input over the maximum is rejected",async()=>{
   const form=new FormData();form.set("title","Huge Example");form.set("agree","true");
   form.set("photo",new File([new Uint8Array(6*1024*1024+1)],"huge.png",{type:"image/png"}));
   const {query}=makeQuery();
-  const result=await handle(new Request("https://api.example/api/upload",{method:"POST",body:form}),env,()=>query);
-  assert.equal(result.status,400);
+  await assert.rejects(
+    handle(new Request("https://api.example/api/upload",{method:"POST",body:form}),env,()=>query),
+    error => error.status === 413 && /under 6 MB/.test(error.message)
+  );
 });
 test("pending images are never served through public route",async()=>{
   const {query}=makeQuery();
