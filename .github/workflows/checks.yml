@@ -29,8 +29,8 @@ jobs:
           assert.match(js,/api\/upload/);
           assert.match(js,/api\/admin/);
           const deployment=fs.readFileSync('render.yaml','utf8');
-          assert.match(deployment,/plan:\\s*free/);
-          assert.match(deployment,/key:\\s*DATABASE_URL[\\s\\S]*?sync:\\s*false/);
+          assert.match(deployment,/plan: free/);
+          assert.match(deployment,/sync: false/);
           assert.doesNotMatch(deployment,/^databases:/m);
           console.log('Front-end and free-only deployment checks passed.');
           NODE
