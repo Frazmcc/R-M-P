@@ -254,6 +254,17 @@ def create_app(database_url=None, admin_token=None, secret_key=None):
             rows = db.execute(select(Report.id, Report.entry_id, Report.reason, Report.created).order_by(Report.created.desc()).limit(100)).all()
             return [{"id": x.id, "entry_id": x.entry_id, "reason": x.reason, "created": x.created} for x in rows]
 
+    @api.post("/api/admin/reports/{report_id}/dismiss")
+    def dismiss_report(report_id: int, x_admin_token: str | None = Header(None)):
+        auth(x_admin_token)
+        with Session() as db:
+            report = db.get(Report, report_id)
+            if not report:
+                raise HTTPException(404, "Report not found")
+            db.delete(report)
+            db.commit()
+        return {"message": "Report dismissed"}
+
     @api.get("/api/admin/image/{entry_id}")
     def admin_image(entry_id: int, x_admin_token: str | None = Header(None)):
         auth(x_admin_token)
@@ -279,6 +290,8 @@ def create_app(database_url=None, admin_token=None, secret_key=None):
                 entry.status = "rejected"
                 entry.image = None
                 entry.featured = False
+                for record in db.scalars(select(Report).where(Report.entry_id == entry_id)).all():
+                    db.delete(record)
             elif action in ("feature", "unfeature") and entry.status == "approved":
                 entry.featured = action == "feature"
             else:
