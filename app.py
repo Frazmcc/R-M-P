@@ -18,6 +18,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 MAX_UPLOAD = 6 * 1024 * 1024
+# Leave room within Neon's 1 GB free tier for votes, indexes and database overhead.
+MAX_IMAGE_STORAGE = 600_000_000
 MAX_PIXELS = 20_000_000
 Image.MAX_IMAGE_PIXELS = MAX_PIXELS
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -192,6 +194,9 @@ def create_app(database_url=None, admin_token=None, secret_key=None):
             duplicate = db.scalar(select(Entry.id).where(Entry.image_sha == image_sha, Entry.status != "rejected"))
             if duplicate:
                 raise HTTPException(409, "This photo has already been submitted")
+            used = db.scalar(select(func.coalesce(func.sum(func.length(Entry.image)), 0)))
+            if used + len(clean) > MAX_IMAGE_STORAGE:
+                raise HTTPException(507, "Photo storage is full; new submissions are temporarily closed")
             entry = Entry(title=title, nickname=nickname, created=now, status="pending",
                           image=clean, image_sha=image_sha, ip_hash=ip_hash)
             db.add(entry)
