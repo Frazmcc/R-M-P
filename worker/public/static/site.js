@@ -149,7 +149,7 @@ document.addEventListener("click", async e=>{
   if(nav){
     setMobileMenu(false);
     go(nav.dataset.page);
-    window.scrollTo({top:0,left:0,behavior:"instant"});
+    window.scrollTo(0, 0);
     return;
   }
   if(e.target.closest("[data-next]")){if(state.items.length){state.index=(state.index+1)%state.items.length;renderViewer();}return;}
