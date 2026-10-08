@@ -2,7 +2,7 @@
 
 This is the deployment procedure for the **Rate My Poo** backend in `worker/`. The user-facing website remains on GitHub Pages. The Worker handles public uploads, private moderation, votes, image delivery and abuse reporting. **No Render service is required.**
 
-The source branch currently containing this Worker is `feature/real-user-submissions`; it will be merged into `main` only after tests and live deployment verification. For initial testing, set Cloudflare's build branch to the feature branch, then change to `main` after merging.
+This standalone Worker is being added to `main` independently of the unfinished website changes. Leave Cloudflare's default build branch set to **`main`**; the current website remains unchanged while the API is deployed and tested.
 
 ## 1. Create the Neon tables
 
@@ -16,7 +16,7 @@ Verify that `entries`, `votes`, and `reports` exist. The initial migration could
 2. Connect GitHub and choose `Frazmcc/R-M-P`.
 3. Set Worker name exactly to **rate-my-poo-api** (matches `wrangler.toml`).
 4. Set **Root directory** to **`worker`**. Without this, Wrangler will not find its configuration.
-5. Set **Build branch** to `feature/real-user-submissions` for pre-merge verification.
+5. Leave **Build branch** on `main` (Cloudflare's default). The Worker files are committed to `main` separately.
 6. Set the **Deploy command** to `npx wrangler deploy`. Install dependencies with `npm install` if Cloudflare asks for a build command.
 7. Select the **Workers Free** plan, then save the Git integration. If it deploys before credentials exist, its health check may fail until secrets are configured; that is expected.
 
@@ -53,7 +53,7 @@ Once tests pass and the Worker is live, set the **public** origin in `config.js`
 window.RMP_API_BASE = "https://YOUR-EXACT-WORKER-HOST.workers.dev";
 ```
 
-Never guess the subdomain. Merge the pull request only when both API and site flow pass. Cloudflare production branch can then move to `main`.
+Never guess the subdomain. Only merge the separate website submission-interface pull request once the backend is configured, the end-to-end flow passes, and the privacy/moderation setup is ready.
 
 ## Data lifecycle
 
