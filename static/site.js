@@ -79,9 +79,10 @@ async function loadModeration(){
   clearPreviews();$("#pending-list").textContent="Loading submissions…";
   try {
     const headers={"X-Admin-Token":token};
-    const [entries,reports]=await Promise.all([
+    const [entries,reports,published]=await Promise.all([
       request("/api/admin/pending",{headers}),
-      request("/api/admin/reports",{headers})
+      request("/api/admin/reports",{headers}),
+      request("/api/admin/approved",{headers})
     ]);
     const list=$("#pending-list");list.textContent="";
     if(!entries.length)list.textContent="Nothing awaiting approval.";
@@ -97,6 +98,19 @@ async function loadModeration(){
       const reject=document.createElement("button");reject.className="btn secondary";reject.textContent="Reject";reject.dataset.moderate=item.id;reject.dataset.action="reject";
       card.append(img,title,document.createElement("br"),approve,reject);list.append(card);
     }
+    const pub=$("#published-list");pub.textContent="";
+    if(!published.length)pub.textContent="No published photos yet.";
+    for(const item of published){
+      const card=document.createElement("div");card.className="mod-card";
+      const img=document.createElement("img");img.alt="Published photo "+item.id;img.src=url(item.image);
+      const title=document.createElement("strong");title.textContent=item.title+(item.featured?" ⭐":"");
+      const fav=document.createElement("button");fav.className="btn";
+      fav.textContent=item.featured?"Unfeature":"Staff favourite";
+      fav.dataset.moderate=item.id;fav.dataset.action=item.featured?"unfeature":"feature";
+      const remove=document.createElement("button");remove.className="btn secondary";
+      remove.dataset.moderate=item.id;remove.dataset.action="remove";remove.textContent="Remove";
+      card.append(img,title,document.createElement("br"),fav,remove);pub.append(card);
+    }
     const reportsNode=$("#report-list");reportsNode.textContent="";
     if(!reports.length)reportsNode.textContent="No reports.";
     for(const item of reports){
@@ -111,7 +125,7 @@ document.addEventListener("click", async e=>{
   if(nav){go(nav.dataset.page);return;}
   if(e.target.closest("[data-next]")){if(state.items.length){state.index=(state.index+1)%state.items.length;renderViewer();}return;}
   const entry=e.target.closest("[data-entry]");
-  if(entry){const idx=state.items.findIndex(x=>x.id===Number(entry.dataset.entry));const selected=state.items[idx];if(selected){await go("home");const index=state.items.findIndex(x=>x.id===selected.id);if(index>=0){state.index=index;renderViewer();}}return;}
+  if(entry){const selected=state.items.find(x=>x.id===Number(entry.dataset.entry));if(selected){await go("home");state.items=[selected,...state.items.filter(x=>x.id!==selected.id)];state.index=0;renderViewer();}return;}
   const vote=e.target.closest("[data-vote]");
   if(vote){
     const item=state.items[state.index];if(!item)return;
