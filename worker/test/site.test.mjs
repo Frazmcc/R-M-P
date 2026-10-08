@@ -28,3 +28,9 @@ test("Wrangler only routes API requests to Worker code",()=>{
   assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*"\]/);
   assert.match(conf,/\[images\][\s\S]*binding\s*=\s*"IMAGES"/);
 });
+
+test("Worker binds the public www hostname via managed Cloudflare custom domain",()=>{
+  const conf=src("../wrangler.toml");
+  assert.match(conf,/\[\[routes\]\][\s\S]*pattern\s*=\s*"www\.rate-my-poo\.com"[\s\S]*custom_domain\s*=\s*true/);
+  assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*"\]/);
+});
