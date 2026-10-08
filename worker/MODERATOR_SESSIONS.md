@@ -4,14 +4,14 @@ The moderator key stays in the Cloudflare secret `RMP_ADMIN_TOKEN`. It is **neve
 
 ## Signing in
 
-1. Open `https://www.rate-my-poo.com/#admin` on a trusted browser.
+1. Open `https://www.rate-my-poo.com/` on a trusted browser, then choose **MODERATOR** from the footer. Its panel opens without changing the browser address.
 2. Enter your current Cloudflare `RMP_ADMIN_TOKEN`.
 3. Keep **Remember this browser** checked to receive a 30-day, automatically refreshed session cookie; leave it unchecked to sign in only for the browser session, with a 12-hour server-side expiry.
 4. Click **Sign in securely**. Successful login erases the key from the form. Private moderation API calls use a cookie instead of repeating the key in JavaScript.
 
 When reopening the moderator page, the site checks the existing session and refreshes it when valid. Active remembered browsers typically won't need the key again until the cookie is cleared, they sign out, their key is rotated or they go 30 days without returning.
 
-**Important:** `rate-my-poo.com` and `www.rate-my-poo.com` use separate host-only cookies. Use the `www` address consistently.
+**Important:** the site redirects visits to `rate-my-poo.com` to the canonical `www.rate-my-poo.com`. The remembered moderator cookie is host-only for `www`.
 
 ## Security design
 
