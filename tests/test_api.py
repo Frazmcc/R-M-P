@@ -74,7 +74,7 @@ def test_duplicate_and_daily_submission_limits(tmp_path):
     assert post_photo(c).status_code==202
     assert post_photo(c).status_code==409
     for n in range(1,5):
-        assert post_photo(c,photo=make_image((110+n,61,40))).status_code==202
+        assert post_photo(c,photo=make_image((110+n*25,61,40))).status_code==202
     assert post_photo(c,photo=make_image((240,61,40))).status_code==429
 
 def test_cors_and_vote_validation(tmp_path):
