@@ -34,3 +34,10 @@ test("Worker binds the public www hostname via managed Cloudflare custom domain"
   assert.match(conf,/\[\[routes\]\][\s\S]*pattern\s*=\s*"www\.rate-my-poo\.com"[\s\S]*custom_domain\s*=\s*true/);
   assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*"\]/);
 });
+
+test("Both apex and www hostnames use managed Cloudflare Worker domains",()=>{
+  const conf=src("../wrangler.toml");
+  for(const domain of ["www.rate-my-poo.com","rate-my-poo.com"]){
+    assert.ok(conf.includes('pattern = "'+domain+'"\\ncustom_domain = true'.replace('\\n','\n')), "Missing managed domain: "+domain);
+  }
+});
