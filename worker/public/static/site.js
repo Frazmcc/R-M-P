@@ -30,7 +30,7 @@ function alertMessage(msg, error=false) {
 async function request(path, options={}) {
   if (!API) throw Error("The upload server has not been connected yet.");
   let response;
-  try { response = await fetch(url(path), options); } catch { throw Error("Unable to reach the upload server. Please try again shortly."); }
+  try { response = await fetch(url(path), { credentials:"same-origin", ...options }); } catch { throw Error("Unable to reach the upload server. Please try again shortly."); }
   const type = response.headers.get("content-type") || "";
   const result = type.includes("application/json") ? await response.json() : null;
   if (!response.ok) throw Error(typeof result?.detail==="string" ? result.detail : "Request failed ("+response.status+")");
@@ -90,23 +90,83 @@ async function go(page, fromHash=false) {
       if(page==="home")$("#viewer").textContent=e.message; else $("#gallery").textContent=e.message;
     }
   }
-  if(page==="admin") clearPreviews();
+  if(page==="admin"){
+    clearPreviews();
+    await checkModeratorSession();
+  }
   if(page==="upload")$("#upload-submit").disabled=!API;
 }
 function clearPreviews(){
   for(const blobUrl of state.adminImages) URL.revokeObjectURL(blobUrl);
   state.adminImages=[];
 }
+
+function setModeratorView(active) {
+  $("#admin-login").hidden=active;
+  $("#admin-logged-in").hidden=!active;
+  $("#admin-session-status").textContent=active?"Moderator session active on this browser.":"Sign in to access private submissions.";
+  if(!active){
+    clearPreviews();
+    $("#admin-token").value="";
+    for(const sel of ["#pending-list","#published-list","#report-list"])$(sel).replaceChildren();
+  }
+}
+async function checkModeratorSession() {
+  $("#admin-session-status").textContent="Checking this browser's moderator session…";
+  try {
+    const session=await request("/api/admin/session");
+    setModeratorView(session.authenticated===true);
+    if(session.authenticated===true)await loadModeration();
+  } catch {
+    setModeratorView(false);
+    $("#admin-session-status").textContent="Cannot verify your session. Please try signing in.";
+  }
+}
+async function signInModerator(event) {
+  event.preventDefault();
+  const input=$("#admin-token");
+  const token=input.value;
+  if(!token){alertMessage("Enter your moderator key.",true);return;}
+  const button=$("#load-pending");
+  button.disabled=true;
+  try {
+    await request("/api/admin/session",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","X-Admin-Token":token},
+      body:JSON.stringify({remember:$("#remember-browser").checked})
+    });
+    input.value=""; // Secret cleared from JavaScript-accessible form immediately.
+    $("#message").hidden=true;
+    setModeratorView(true);
+    await loadModeration();
+  } catch(error) {
+    alertMessage(error.message,true);
+  } finally {
+    button.disabled=false;
+  }
+}
+async function signOutModerator() {
+  const button=$("#admin-signout");
+  button.disabled=true;
+  try {
+    await request("/api/admin/logout",{method:"POST"});
+    setModeratorView(false);
+    $("#message").hidden=true;
+  } catch(error) {
+    alertMessage(error.message,true);
+  } finally { button.disabled=false; }
+}
+$("#admin-login-form").addEventListener("submit",signInModerator);
+$("#admin-signout").addEventListener("click",signOutModerator);
+
 async function loadModeration(){
-  const token=$("#admin-token").value;
-  if(!token) {alertMessage("Enter your moderator key.",true);return;}
+  if($("#admin-logged-in").hidden)return;
   clearPreviews();$("#pending-list").textContent="Loading submissions…";
   try {
-    const headers={"X-Admin-Token":token};
     const [entries,reports,published]=await Promise.all([
-      request("/api/admin/pending",{headers}),
-      request("/api/admin/reports",{headers}),
-      request("/api/admin/approved",{headers})
+      request("/api/admin/pending"),
+      request("/api/admin/reports"),
+      request("/api/admin/approved")
     ]);
     const list=$("#pending-list");list.textContent="";
     if(!entries.length)list.textContent="Nothing awaiting approval.";
@@ -114,7 +174,7 @@ async function loadModeration(){
       const card=document.createElement("div");card.className="mod-card";
       const img=document.createElement("img");img.alt="Pending photo "+item.id;
       try {
-        const r=await fetch(url("/api/admin/image/"+item.id),{headers});
+        const r=await fetch(url("/api/admin/image/"+item.id),{credentials:"same-origin"});
         if(r.ok){const blobUrl=URL.createObjectURL(await r.blob());state.adminImages.push(blobUrl);img.src=blobUrl;}
       }catch{ /* Image preview unavailable; moderation remains usable. */ }
       const title=document.createElement("strong");title.textContent=item.title+" — "+item.nickname;
@@ -142,7 +202,11 @@ async function loadModeration(){
       const remove=document.createElement("button");remove.className="btn secondary";remove.dataset.moderate=item.entry_id;remove.dataset.action="remove";remove.textContent="Remove photo";
       const dismiss=document.createElement("button");dismiss.className="btn secondary";dismiss.dataset.dismissReport=item.id;dismiss.textContent="Dismiss report";p.append(remove,dismiss);reportsNode.append(p);
     }
-  }catch(e){alertMessage(e.message,true);$("#pending-list").textContent="Unable to load moderation queue.";}
+  }catch(e){
+    if(/session expired|credentials|sign in/i.test(e.message))setModeratorView(false);
+    alertMessage(e.message,true);
+    $("#pending-list").textContent="Unable to load moderation queue.";
+  }
 }
 document.addEventListener("click", async e=>{
   const nav=e.target.closest("[data-page]");
@@ -171,17 +235,16 @@ document.addEventListener("click", async e=>{
     try{await request("/api/report/"+report.dataset.report,{method:"POST",headers:{"X-Voter-ID":voterId()},body:form});alertMessage("Report sent for review.");}
     catch(err){alertMessage(err.message,true);}return;
   }
-  if(e.target.closest("#load-pending")){await loadModeration();return;}
   const dismiss=e.target.closest("[data-dismiss-report]");
   if(dismiss){
-    try{await request("/api/admin/reports/"+dismiss.dataset.dismissReport+"/dismiss",{method:"POST",headers:{"X-Admin-Token":$("#admin-token").value}});alertMessage("Report dismissed.");await loadModeration();}
+    try{await request("/api/admin/reports/"+dismiss.dataset.dismissReport+"/dismiss",{method:"POST"});alertMessage("Report dismissed.");await loadModeration();}
     catch(err){alertMessage(err.message,true);}
     return;
   }
   const mod=e.target.closest("[data-moderate]");
   if(mod){
     if(mod.dataset.action==="remove" && !confirm("Remove this published photo?"))return;
-    try{await request("/api/admin/"+mod.dataset.moderate+"/"+mod.dataset.action,{method:"POST",headers:{"X-Admin-Token":$("#admin-token").value}});alertMessage("Moderation action completed.");await loadModeration();}
+    try{await request("/api/admin/"+mod.dataset.moderate+"/"+mod.dataset.action,{method:"POST"});alertMessage("Moderation action completed.");await loadModeration();}
     catch(err){alertMessage(err.message,true);}
   }
 });

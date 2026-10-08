@@ -65,3 +65,11 @@ h1,h2,h3,p,.notice,.message{overflow-wrap:break-word}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 /* SEO landing pages: keep accessible text links styled like existing nav controls. */
 .nav a{text-decoration:none;display:inline-block}.inner a:not(.btn){text-underline-offset:3px}.inner a.btn{display:inline-block;text-decoration:none}.inner ul{padding-left:22px}.inner li{margin-bottom:9px}.foot a{color:inherit;text-decoration:underline}
+
+/* Moderator authentication stays readable on narrow screens. */
+#admin-login-form{max-width:620px}
+#admin-login .check{max-width:600px}
+.admin-hint{display:block;margin:3px 0 0;font-size:13px;line-height:1.5}
+.admin-session-actions{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid #dcc4a1}
+.admin-session-actions p{flex:1;min-width:200px}
+@media(max-width:760px){.admin-session-actions{display:block}.admin-session-actions p{min-width:0}#admin-login-form .btn,.admin-session-actions .btn{width:100%;min-height:50px}}

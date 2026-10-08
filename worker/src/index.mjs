@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { sameOriginPost, issueModeratorSession, validateModeratorSession, validModeratorKey, clearModeratorCookie } from "./moderator-session.mjs";
 
 const MAX_ORIGINAL = 6 * 1024 * 1024;
 const MAX_WEBP = 750 * 1024;
@@ -40,13 +41,6 @@ function failure(status, detail) { return reply({ detail }, status); }
 function validText(s, min, max) {
   return typeof s === "string" && s.trim().length >= min &&
     s.trim().length <= max && !/[\u0000-\u001f\u007f<>]/.test(s);
-}
-function auth(request, env) {
-  const actual = request.headers.get("X-Admin-Token") || "";
-  if (!env.RMP_ADMIN_TOKEN || !actual || actual.length !== env.RMP_ADMIN_TOKEN.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < actual.length; i++) mismatch |= actual.charCodeAt(i) ^ env.RMP_ADMIN_TOKEN.charCodeAt(i);
-  return mismatch === 0;
 }
 function visitor(request) {
   const id = request.headers.get("X-Voter-ID") || "";
@@ -176,8 +170,37 @@ export async function handle(request, env, makeSql = neon) {
       ON CONFLICT DO NOTHING RETURNING id`;
     return rows.length?reply({message:"Report received for moderator review"},202):failure(409,"Photo unavailable or already reported");
   }
+
+  // Moderation cookies are accepted only over HTTPS, and any privileged
+  // state-changing request must have the exact same Origin as the destination.
+  if (path === "/api/admin/session") {
+    if (request.method === "GET") {
+      const session=await validateModeratorSession(request,env);
+      if(!session) return reply({authenticated:false});
+      return reply({authenticated:true,remember:session.remember},200,{
+        "Set-Cookie":await issueModeratorSession(env,session.remember)
+      });
+    }
+    if (request.method === "POST") {
+      if(!sameOriginPost(request)) return failure(403,"Cross-origin moderator login blocked");
+      if(!validModeratorKey(request,env)) return failure(403,"Moderator credentials incorrect");
+      if(!(request.headers.get("Content-Type")||"").startsWith("application/json"))return failure(415,"Expected JSON");
+      const options=await request.json().catch(()=>null);
+      if(!options || typeof options.remember!=="boolean")return failure(400,"Invalid session options");
+      return reply({authenticated:true,remember:options.remember},200,{
+        "Set-Cookie":await issueModeratorSession(env,options.remember)
+      });
+    }
+    return failure(405,"Method not allowed");
+  }
+  if (path === "/api/admin/logout") {
+    if(request.method!=="POST")return failure(405,"Method not allowed");
+    if(!sameOriginPost(request))return failure(403,"Cross-origin moderator logout blocked");
+    return reply({authenticated:false},200,{"Set-Cookie":clearModeratorCookie()});
+  }
   if (path.startsWith("/api/admin/")) {
-    if(!auth(request,env)) return failure(403,"Moderator credentials incorrect");
+    if(request.method==="POST" && !sameOriginPost(request))return failure(403,"Cross-origin moderator request blocked");
+    if(!await validateModeratorSession(request,env))return failure(401,"Moderator session expired. Please sign in again.");
     if (request.method === "GET" && path === "/api/admin/pending") {
       const rows=await sql`SELECT id,title,nickname,created FROM entries WHERE status='pending' ORDER BY created ASC LIMIT 100`;
       return reply(rows);
