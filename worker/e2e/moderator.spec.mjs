@@ -19,11 +19,17 @@ test("remembered moderator stays signed in after reload without storing the key"
   expect(cookie?.httpOnly).toBe(true);
   expect(cookie?.expires).toBeGreaterThan(Date.now()/1000);
   await page.reload();
+  // With a single canonical browser address, reload opens the homepage.
+  // The moderator must reopen their panel, but does not reenter their key.
+  await expect(page.locator("#home-page")).toBeVisible();
+  await expect(page).toHaveURL("http://127.0.0.1:4173/");
+  await page.locator('.foot [data-page="admin"]').click();
   await expect(page.locator("#admin-logged-in")).toBeVisible();
   await expect(page.locator("#admin-login")).toBeHidden();
   await page.locator("#admin-signout").click();
   await expect(page.locator("#admin-login")).toBeVisible();
   await page.reload();
+  await page.locator('.foot [data-page="admin"]').click();
   await expect(page.locator("#admin-logged-in")).toBeHidden();
   expect((await context.cookies()).some(c=>c.name==="rmp_browser_test_session")).toBe(false);
 });

@@ -25,14 +25,14 @@ test("Wrangler only routes API requests to Worker code",()=>{
   const conf=src("../wrangler.toml");
   assert.match(conf,/\[assets\]/);
   assert.match(conf,/directory\s*=\s*"\.\/public"/);
-  assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*"\]/);
+  assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*", "\/", "\/how-it-works\*", "\/community-guidelines\*"\]/);
   assert.match(conf,/\[images\][\s\S]*binding\s*=\s*"IMAGES"/);
 });
 
 test("Worker binds the public www hostname via managed Cloudflare custom domain",()=>{
   const conf=src("../wrangler.toml");
   assert.match(conf,/\[\[routes\]\][\s\S]*pattern\s*=\s*"www\.rate-my-poo\.com"[\s\S]*custom_domain\s*=\s*true/);
-  assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*"\]/);
+  assert.match(conf,/run_worker_first\s*=\s*\["\/api\/\*", "\/", "\/how-it-works\*", "\/community-guidelines\*"\]/);
 });
 
 test("Both apex and www hostnames use managed Cloudflare Worker domains",()=>{

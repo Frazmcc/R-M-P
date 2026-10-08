@@ -99,11 +99,15 @@ test("navigation is visible on desktop, without a sticky phone bar",async({page}
   await noHorizontalOverflow(page,"desktop");
 });
 
-test("readable guidance pages fit a narrow screen",async({page})=>{
+test("all information sections are readable inside the homepage on a narrow screen",async({page})=>{
   await page.setViewportSize({width:320,height:700});
-  for(const path of ["/how-it-works/","/community-guidelines/"]){
-    await page.goto(path);
-    await expect(page.locator("h1")).toBeVisible();
-    await noHorizontalOverflow(page,path);
+  await page.goto("/");
+  for(const section of ["how","guidelines"]){
+    await page.locator("#mobile-menu-toggle").click();
+    await page.locator('#nav [data-page="'+section+'"]').click();
+    await expect(page.locator("#"+section+"-page h1")).toBeVisible();
+    await noHorizontalOverflow(page,section);
+    expect(new URL(page.url()).pathname).toBe("/");
+    expect(new URL(page.url()).hash).toBe("");
   }
 });

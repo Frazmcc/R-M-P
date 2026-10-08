@@ -10,6 +10,9 @@ const json = (res,data,status=200)=>{res.writeHead(status,{"Content-Type":"appli
 const server = http.createServer(async (req,res)=>{
   const uri = new URL(req.url, "http://127.0.0.1:4173");
   const path = uri.pathname;
+  if(/^\/(?:how-it-works|community-guidelines)(?:\/.*)?$/.test(path)){
+    res.writeHead(301,{"Location":"/"});res.end();return;
+  }
   if(path==="/api/health"){json(res,{status:"ok"});return;}
   if(path==="/api/items"){json(res,{items:[fixture],total:1});return;}
   if(path==="/api/images/1"){

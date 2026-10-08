@@ -1,7 +1,7 @@
 "use strict";
 document.documentElement.classList.add("js");
 const API = String(window.RMP_API_BASE || "").replace(/\/+$/, "");
-const PAGES = new Set(["home", "top", "bottom", "featured", "new", "upload", "about", "admin"]);
+const PAGES = new Set(["home", "top", "bottom", "featured", "new", "upload", "how", "guidelines", "about", "admin"]);
 const state = {items: [], index: 0, page: "home", adminImages: []};
 const $ = s => document.querySelector(s);
 const menuToggle = $("#mobile-menu-toggle");
@@ -68,10 +68,9 @@ async function loadEntries() {
   state.items = result.items; state.index=0; $("#total-count").textContent=result.total;
   if(state.page==="home")renderViewer();else renderGallery();
 }
-async function go(page, fromHash=false) {
+async function go(page) {
   if (!PAGES.has(page))page="home";
   state.page=page;
-  if (!fromHash && location.hash !== "#"+page) history.replaceState(null,"","#"+page);
   $("#message").hidden=true;
   document.querySelectorAll(".page").forEach(x=>x.hidden=x.id!==((page==="top"||page==="bottom"||page==="featured"||page==="new")?"list":page)+"-page");
   document.querySelectorAll("#nav button, .mobile-quick-nav button").forEach(x=>{
@@ -211,6 +210,7 @@ async function loadModeration(){
 document.addEventListener("click", async e=>{
   const nav=e.target.closest("[data-page]");
   if(nav){
+    e.preventDefault();
     setMobileMenu(false);
     go(nav.dataset.page);
     window.scrollTo(0, 0);
@@ -265,7 +265,17 @@ $("#upload-form").addEventListener("submit",async event=>{
   finally{button.disabled=false;}
 });
 $("#search").addEventListener("input",()=>{if(["new","top","bottom","featured"].includes(state.page))loadEntries().catch(e=>alertMessage(e.message,true));});
-window.addEventListener("hashchange",()=>go(location.hash.slice(1),true));
+// Translate old #section bookmarks once, then keep the public address bar
+// pinned to the canonical homepage. Navigation thereafter is in-memory.
+const initialPage=location.hash.slice(1);
+if(location.pathname!=="/" || location.search || location.hash){
+  history.replaceState(null,"","/");
+}
+window.addEventListener("hashchange",()=>{
+  const oldPage=location.hash.slice(1);
+  history.replaceState(null,"","/");
+  if(PAGES.has(oldPage))go(oldPage);
+});
 $("#api-status").textContent=API?"Checking the submission server…":"Upload backend not yet configured.";
 if(API)request("/api/health").then(()=>$("#api-status").textContent="Submission server is connected.").catch(()=>$("#api-status").textContent="Submission server currently unavailable.");
-go(location.hash.slice(1)||"home",true);
+go(PAGES.has(initialPage)?initialPage:"home");

@@ -12,12 +12,12 @@ binding = "IMAGES"
 RMP_ALLOWED_ORIGINS = "https://frazmcc.github.io,https://rate-my-poo.com,https://www.rate-my-poo.com"
 
 # Static HTML, CSS and JavaScript are delivered directly by Cloudflare's CDN;
-# only /api/* requests invoke the Worker script.
+# dynamic API requests and canonical navigation redirects invoke the Worker.\n# Asset files (CSS/JS/images) continue to bypass the Worker at the edge.
 [assets]
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]
+run_worker_first = ["/api/*", "/", "/how-it-works*", "/community-guidelines*"]
 
 # Public hostname for the live website; Cloudflare manages DNS and TLS.
 [[routes]]

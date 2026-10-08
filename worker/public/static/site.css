@@ -73,3 +73,7 @@ h1,h2,h3,p,.notice,.message{overflow-wrap:break-word}
 .admin-session-actions{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid #dcc4a1}
 .admin-session-actions p{flex:1;min-width:200px}
 @media(max-width:760px){.admin-session-actions{display:block}.admin-session-actions p{min-width:0}#admin-login-form .btn,.admin-session-actions .btn{width:100%;min-height:50px}}
+
+/* Accessible in-place navigation: no visible page URL changes. */
+.text-link{display:inline;border:0;padding:0;background:none;color:#794114;text-decoration:underline;text-underline-offset:3px;font:inherit;font-weight:700;cursor:pointer}
+.text-link:hover,.text-link:focus-visible{color:#45200e;text-decoration-thickness:2px}
