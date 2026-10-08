@@ -1,0 +1,11 @@
+# Rate My Poo: approved public pages and images may be crawled.
+User-agent: *
+Allow: /
+Disallow: /api/admin/
+Disallow: /api/upload
+Disallow: /api/vote/
+Disallow: /api/report/
+Disallow: /api/items
+Disallow: /api/health
+
+Sitemap: https://www.rate-my-poo.com/sitemap.xml
