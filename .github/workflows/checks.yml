@@ -28,7 +28,11 @@ jobs:
           const js=fs.readFileSync('static/site.js','utf8');
           assert.match(js,/api\/upload/);
           assert.match(js,/api\/admin/);
-          console.log('Front-end checks passed.');
+          const deployment=fs.readFileSync('render.yaml','utf8');
+          assert.match(deployment,/plan:\\s*free/);
+          assert.match(deployment,/key:\\s*DATABASE_URL[\\s\\S]*?sync:\\s*false/);
+          assert.doesNotMatch(deployment,/^databases:/m);
+          console.log('Front-end and free-only deployment checks passed.');
           NODE
       - uses: actions/setup-python@v5
         with:
