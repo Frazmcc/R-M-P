@@ -1,6 +1,13 @@
 // Host-only signed moderator sessions. The administrator's real key never goes
 // into localStorage, sessionStorage or JavaScript-readable cookies.
-import { hash, toHex } from "./index.mjs";
+function toHex(buffer) {
+  return Array.from(new Uint8Array(buffer), byte=>byte.toString(16).padStart(2,"0")).join("");
+}
+async function hmac(secret, value) {
+  const encoder=new TextEncoder();
+  const key=await crypto.subtle.importKey("raw",encoder.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  return toHex(await crypto.subtle.sign("HMAC",key,encoder.encode(value)));
+}
 
 const COOKIE = "__Host-rmp_moderator";
 const PERSISTENT_SECONDS = 30 * 24 * 60 * 60;
@@ -25,7 +32,7 @@ function cookieValue(request) {
 function sign(payload, env) {
   // Rotating RMP_ADMIN_TOKEN invalidates every existing session without
   // affecting the upload, vote or report hashing key used in the database.
-  return hash(env.RMP_SECRET_KEY+":"+env.RMP_ADMIN_TOKEN,"moderator-session:"+payload);
+  return hmac(env.RMP_SECRET_KEY+":"+env.RMP_ADMIN_TOKEN,"moderator-session:"+payload);
 }
 function cookie(token, remember) {
   return COOKIE+"="+token+"; Path=/; Secure; HttpOnly; SameSite=Strict"+
