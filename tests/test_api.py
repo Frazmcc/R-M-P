@@ -101,3 +101,10 @@ def test_report_can_be_dismissed(tmp_path):
     assert c.post(f"/api/admin/reports/{report_id}/dismiss").status_code==403
     assert c.post(f"/api/admin/reports/{report_id}/dismiss",headers=ADMIN).status_code==200
     assert c.get("/api/admin/reports",headers=ADMIN).json()==[]
+
+def test_render_without_database_url_fails_closed(monkeypatch):
+    import pytest
+    monkeypatch.setenv("RENDER", "true")
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError, match="DATABASE_URL"):
+        create_app()
