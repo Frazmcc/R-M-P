@@ -240,8 +240,26 @@ export async function handle(request, env, makeSql = neon) {
   }
   return failure(404,"Route not found");
 }
+// Keep the visible site on one public homepage. The API and static asset
+// URLs remain internal resources; they must never be redirected to HTML.
+export async function publicNavigation(request, env) {
+  if(request.method!=="GET" && request.method!=="HEAD")return null;
+  const target=new URL(request.url);
+  const oldEditorial=/^\/(?:how-it-works|community-guidelines)(?:\/.*)?$/.test(target.pathname);
+  const isHomepage=target.pathname==="/";
+  if(!isHomepage && !oldEditorial)return null;
+  const www="https://www.rate-my-poo.com/";
+  if(oldEditorial || target.hostname!=="www.rate-my-poo.com" || target.protocol!=="https:" || target.search) {
+    return Response.redirect(www,301);
+  }
+  // The root homepage uses the static edge asset. The Worker is only invoked
+  // so the bare domain, old URLs and stale query strings can be canonicalized.
+  return env.ASSETS.fetch(request);
+}
 export default {
   async fetch(request, env) {
+    const canonical=await publicNavigation(request,env);
+    if(canonical)return canonical;
     const origin = request.headers.get("Origin");
     const cors = allowedOrigin(origin,env)?{
       "Access-Control-Allow-Origin":origin,
