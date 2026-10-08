@@ -1,7 +1,9 @@
 name: Site checks
+
 on:
   push:
   pull_request:
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -10,20 +12,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone site and JavaScript syntax
+      - name: Validate frontend HTML and JavaScript
         run: |
+          node --check static/site.js
           node - <<'NODE'
           const fs=require('node:fs');
-          const vm=require('node:vm');
           const assert=require('node:assert/strict');
           const html=fs.readFileSync('index.html','utf8');
           assert.match(html,/<!doctype html>/i);
           assert.match(html,/<meta name="viewport"/i);
-          assert.match(html,/<main id="content"/i);
-          assert.match(html,/Rate My Poo/);
+          assert.match(html,/<main[ >]/i);
+          assert.match(html,/id="upload-form"/);
+          assert.match(html,/id="admin-page"/);
           assert.doesNotMatch(html,/<iframe|googletag|adsbygoogle|doubleclick\.net/i);
-          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
-          assert.equal(scripts.length,1);
-          new vm.Script(scripts[0][1],{filename:'inline.js'});
-          console.log('HTML and JavaScript checks passed.');
+          const js=fs.readFileSync('static/site.js','utf8');
+          assert.match(js,/api\/upload/);
+          assert.match(js,/api\/admin/);
+          console.log('Front-end checks passed.');
           NODE
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install API and test dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run backend integration tests
+        run: pytest -q
