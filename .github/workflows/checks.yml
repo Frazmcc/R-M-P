@@ -42,3 +42,17 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run backend integration tests
         run: python -m pytest -q
+
+  edge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Cloudflare Worker dependencies
+        run: npm install --prefix worker --no-audit --no-fund
+      - name: Test WebP-only uploads, CORS and private moderation
+        run: npm run --prefix worker test
+      - name: Verify Cloudflare Worker builds without credentials
+        run: npm run --prefix worker check
