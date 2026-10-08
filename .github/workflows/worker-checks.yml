@@ -1,0 +1,26 @@
+name: Cloudflare Worker checks
+
+on:
+  push:
+    paths:
+      - 'worker/**'
+      - '.github/workflows/worker-checks.yml'
+  pull_request:
+    paths:
+      - 'worker/**'
+      - '.github/workflows/worker-checks.yml'
+
+jobs:
+  validate-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --prefix worker --no-audit --no-fund
+      - name: Run API privacy and moderation tests
+        run: npm run --prefix worker test
+      - name: Check Cloudflare bundle
+        run: npm run --prefix worker check
