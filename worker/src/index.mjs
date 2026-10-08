@@ -227,15 +227,17 @@ export default {
       "Access-Control-Max-Age":"7200", "Vary":"Origin"
     }:{"Vary":"Origin"};
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:cors});
+    let result;
     try {
-      const result = await handle(request,env);
-      for(const [k,v] of Object.entries(cors))result.headers.set(k,v);
-      return result;
+      result = await handle(request,env);
     } catch(err) {
       // Never reveal privileged SQL, secrets or stack traces to visitors.
       const status=err.status||500;
       if(status>=500)console.error("RMP edge API error:",err?.message||"unknown");
-      return failure(status,status>=500?"Service is temporarily unavailable":err.message);
+      result = failure(status,status>=500?"Service is temporarily unavailable":err.message);
     }
+    // Error responses need the same allowlisted CORS headers as successful ones.
+    for(const [k,v] of Object.entries(cors))result.headers.set(k,v);
+    return result;
   }
 };
