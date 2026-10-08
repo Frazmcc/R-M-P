@@ -1,8 +1,27 @@
 "use strict";
+document.documentElement.classList.add("js");
 const API = String(window.RMP_API_BASE || "").replace(/\/+$/, "");
 const PAGES = new Set(["home", "top", "bottom", "featured", "new", "upload", "about", "admin"]);
 const state = {items: [], index: 0, page: "home", adminImages: []};
 const $ = s => document.querySelector(s);
+const menuToggle = $("#mobile-menu-toggle");
+const primaryNav = document.querySelector(".nav");
+function setMobileMenu(open) {
+  primaryNav.classList.toggle("is-open", open);
+  menuToggle.setAttribute("aria-expanded", String(open));
+  menuToggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+  menuToggle.querySelector(".menu-symbol").textContent = open ? "✕" : "☰";
+}
+menuToggle.addEventListener("click", () => setMobileMenu(menuToggle.getAttribute("aria-expanded") !== "true"));
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && menuToggle.getAttribute("aria-expanded") === "true") {
+    setMobileMenu(false);
+    menuToggle.focus();
+  }
+});
+window.matchMedia("(min-width: 761px)").addEventListener("change", event => {
+  if (event.matches) setMobileMenu(false);
+});
 const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const url = path => API + path;
 function alertMessage(msg, error=false) {
@@ -28,7 +47,7 @@ function voterId() {
   } catch { id = crypto.randomUUID(); }
   return id;
 }
-function photo(item) { return '<div class="photo"><img loading="lazy" src="'+escapeHTML(url(item.image))+'" alt="Submission: '+escapeHTML(item.title)+'"></div>'; }
+function photo(item) { return '<div class="photo"><img loading="eager" decoding="async" fetchpriority="high" src="'+escapeHTML(url(item.image))+'" alt="Submission: '+escapeHTML(item.title)+'"></div>'; }
 function renderViewer() {
   const node=$("#viewer"), item=state.items[state.index];
   if (!item) {
@@ -40,7 +59,7 @@ function renderViewer() {
 function renderGallery() {
   const node=$("#gallery");
   if (!state.items.length) { node.innerHTML='<p>No approved submissions found yet.</p>'; return; }
-  node.innerHTML=state.items.map(x=>'<button class="tile" data-entry="'+x.id+'"><img loading="lazy" src="'+escapeHTML(url(x.image))+'" alt=""><strong>'+escapeHTML(x.title)+'</strong><small>'+escapeHTML(x.nickname)+' • ⭐ '+Number(x.average).toFixed(1)+' ('+x.votes+' votes)</small></button>').join("");
+  node.innerHTML=state.items.map(x=>'<button class="tile" data-entry="'+x.id+'"><img loading="lazy" decoding="async" src="'+escapeHTML(url(x.image))+'" alt=""><strong>'+escapeHTML(x.title)+'</strong><small>'+escapeHTML(x.nickname)+' • ⭐ '+Number(x.average).toFixed(1)+' ('+x.votes+' votes)</small></button>').join("");
 }
 async function loadEntries() {
   const sort = ({top:"top",bottom:"bottom",featured:"featured",new:"new"})[state.page] || "new";
@@ -55,7 +74,12 @@ async function go(page, fromHash=false) {
   if (!fromHash && location.hash !== "#"+page) history.replaceState(null,"","#"+page);
   $("#message").hidden=true;
   document.querySelectorAll(".page").forEach(x=>x.hidden=x.id!==((page==="top"||page==="bottom"||page==="featured"||page==="new")?"list":page)+"-page");
-  document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  document.querySelectorAll("#nav button, .mobile-quick-nav button").forEach(x=>{
+    const active = x.dataset.page === page;
+    x.classList.toggle("active", active);
+    if (active) x.setAttribute("aria-current", "page");
+    else x.removeAttribute("aria-current");
+  });
   if(["top","bottom","featured","new"].includes(page)) {
     $("#list-title").textContent=({top:"TOP 20",bottom:"BOTTOM 20",featured:"STAFF FAVOURITES",new:"LATEST PHOTOS"})[page];
     $("#search").value="";
@@ -122,7 +146,12 @@ async function loadModeration(){
 }
 document.addEventListener("click", async e=>{
   const nav=e.target.closest("[data-page]");
-  if(nav){go(nav.dataset.page);return;}
+  if(nav){
+    setMobileMenu(false);
+    go(nav.dataset.page);
+    window.scrollTo(0, 0);
+    return;
+  }
   if(e.target.closest("[data-next]")){if(state.items.length){state.index=(state.index+1)%state.items.length;renderViewer();}return;}
   const entry=e.target.closest("[data-entry]");
   if(entry){const selected=state.items.find(x=>x.id===Number(entry.dataset.entry));if(selected){await go("home");state.items=[selected,...state.items.filter(x=>x.id!==selected.id)];state.index=0;renderViewer();}return;}
@@ -158,15 +187,17 @@ document.addEventListener("click", async e=>{
 });
 $("#upload-form").addEventListener("submit",async event=>{
   event.preventDefault();
+  // DOM event.currentTarget becomes null after the first await in browsers.
+  const form = event.currentTarget;
   const button=$("#upload-submit"), status=$("#upload-status");
   if(!API){status.textContent="The upload server is not connected.";return;}
   const file=$("#photo").files[0];
   if(!file || file.size>6*1024*1024){status.textContent="Choose an image smaller than 6 MB.";return;}
   button.disabled=true;status.textContent="Uploading securely…";
   try{
-    const result=await request("/api/upload",{method:"POST",body:new FormData(event.currentTarget)});
+    const result=await request("/api/upload",{method:"POST",body:new FormData(form)});
     status.textContent=result.message+" Reference #"+result.id;
-    event.currentTarget.reset();
+    form.reset();
   }catch(err){status.textContent=err.message;}
   finally{button.disabled=false;}
 });

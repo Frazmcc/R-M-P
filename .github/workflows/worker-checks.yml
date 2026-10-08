@@ -24,3 +24,27 @@ jobs:
         run: npm run --prefix worker test
       - name: Check Cloudflare bundle
         run: npm run --prefix worker check
+
+  mobile-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        working-directory: worker
+        run: npm install --no-audit --no-fund
+      - name: Install headless Chromium
+        working-directory: worker
+        run: npx playwright install --with-deps chromium
+      - name: Test phone, landscape and desktop layouts
+        working-directory: worker
+        run: npm run test:mobile
+      - name: Upload screenshots and traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-browser-failure
+          path: worker/test-results/
+          if-no-files-found: ignore

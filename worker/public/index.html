@@ -42,10 +42,15 @@
 </script>
 </head>
 <body>
-<header class="masthead"><div class="shell mast-inner"><a class="logo" href="#home">💩 <span>Rate My Poo!<small>THE INTERNET'S STRANGEST CLASSIC RETURNS</small></span></a><div class="sticker">EST. 2000s<br>100% AD-FREE</div></div></header>
+<header class="masthead"><div class="shell mast-inner"><a class="logo" href="#home">💩 <span>Rate My Poo!<small>THE INTERNET'S STRANGEST CLASSIC RETURNS</small></span></a><div class="sticker">EST. 2000s<br>100% AD-FREE</div><button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-controls="nav" aria-expanded="false" aria-label="Open navigation"><span aria-hidden="true" class="menu-symbol">☰</span><span>MENU</span></button></div></header>
 <nav class="nav" aria-label="Main menu"><div class="shell" id="nav">
 <button data-page="home">RATE A POO</button><button data-page="top">TOP 20</button><button data-page="bottom">BOTTOM 20</button><button data-page="featured">STAFF FAVOURITES</button><button data-page="new">LATEST</button><button data-page="upload">SUBMIT YOUR POO</button><button data-page="about">ABOUT</button>
 </div></nav>
+<nav class="mobile-quick-nav" aria-label="Quick navigation">
+<button data-page="home" type="button"><span aria-hidden="true">🎯</span><span>Rate</span></button>
+<button data-page="top" type="button"><span aria-hidden="true">🏆</span><span>Top 20</span></button>
+<button data-page="upload" type="button"><span aria-hidden="true">📸</span><span>Submit</span></button>
+</nav>
 <div class="shell columns">
 <main>
 <div id="message" role="status" class="message" hidden></div>
@@ -55,10 +60,10 @@
 <section class="panel page" id="upload-page" hidden><h2>SUBMIT YOUR POO</h2><div class="inner"><h1>Think you've got a winner?</h1><p>No account needed. Each photo is reviewed before it appears publicly.</p><form id="upload-form">
 <label for="title">Photo title (required)</label><input class="text-field" id="title" name="title" required minlength="3" maxlength="90" placeholder="The Great Escape">
 <label for="nickname">Nickname (optional)</label><input class="text-field" id="nickname" name="nickname" maxlength="35" placeholder="Anonymous">
-<label for="photo">Photo (JPEG, PNG or WebP; max 6 MB)</label><input class="text-field" id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+<label for="photo">Photo (JPEG, PNG or WebP; max 6 MB)</label><input class="text-field" id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required><p class="field-hint">On your phone, you can choose an existing photo. Images are converted to WebP before storage.</p>
 <input class="honey" tabindex="-1" autocomplete="off" name="website" aria-hidden="true" type="text">
 <label class="check"><input id="agree" name="agree" type="checkbox" value="true" required> I am 18 or over, own this image, have permission to publish it and confirm it does not show an identifiable person or illegal content.</label>
-<button id="upload-submit" class="btn" type="submit">SUBMIT FOR APPROVAL →</button><p id="upload-status" role="status"></p></form>
+<button id="upload-submit" class="btn" type="submit">SUBMIT FOR APPROVAL →</button><p id="upload-status" role="status" aria-live="polite"></p></form>
 <div class="notice"><strong>Community rule:</strong> No nudity, identifiable people, harassment, illegal content or personal information. Images may be removed without notice. We do not publish your photo until a moderator approves it.</div>
 </div></section>
 <section class="panel page" id="about-page" hidden><h2>ABOUT RATE MY POO</h2><div class="inner"><h1>Bringing the weird web back.</h1><p>A nostalgic, independent recreation inspired by the 2000s phenomenon: simple scores, hilarious titles and no adverts or trackers.</p><p>Submitters must own the rights to their photo. Submissions are privately reviewed; approved photos can be rated or reported. Anonymous nicknames are public. Photos can be removed by a moderator.</p><h3>Privacy and data</h3><p>We save your submission, nickname, ratings and a one-way pseudonymous technical identifier to limit abuse. Please don't include personal information in titles or pictures. Images have embedded metadata removed before storage.</p><p>Before public launch, the site owner must publish a contact address, full privacy policy, retention policy and takedown procedure.</p></div></section>
