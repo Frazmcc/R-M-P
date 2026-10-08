@@ -108,3 +108,12 @@ def test_render_without_database_url_fails_closed(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     with pytest.raises(RuntimeError, match="DATABASE_URL"):
         create_app()
+
+
+def test_free_tier_storage_limit_stops_new_photos(tmp_path, monkeypatch):
+    monkeypatch.setattr("app.MAX_IMAGE_STORAGE", 1)
+    c = client(tmp_path)
+    response = post_photo(c)
+    assert response.status_code == 507
+    assert "storage is full" in response.json()["detail"].lower()
+    assert c.get("/api/items").json()["total"] == 0
