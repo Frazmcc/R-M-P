@@ -90,3 +90,15 @@ test("moderator endpoint needs a token",async()=>{
   const forbidden=await handle(new Request("https://api.example/api/admin/pending"),env,()=>query);
   assert.equal(forbidden.status,403);
 });
+
+test("validation failures expose CORS only to approved site origins",async()=>{
+  const worker=(await import("../src/index.mjs")).default;
+  const form=new FormData();form.set("title","A valid title");
+  const make=origin=>new Request("https://api.example/api/upload",{method:"POST",body:form,headers:{"Origin":origin}});
+  const allowed=await worker.fetch(make("https://frazmcc.github.io"),env);
+  assert.equal(allowed.status,400);
+  assert.equal(allowed.headers.get("Access-Control-Allow-Origin"),"https://frazmcc.github.io");
+  const refused=await worker.fetch(make("https://bad.example"),env);
+  assert.equal(refused.status,400);
+  assert.equal(refused.headers.get("Access-Control-Allow-Origin"),null);
+});
