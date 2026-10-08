@@ -3,9 +3,43 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#462713">
-<meta name="description" content="Rate My Poo is back! Upload, browse and rate the internet's strangest photos. No adverts.">
-<title>Rate My Poo — The Internet's Strangest Classic</title>
+<meta name="description" content="Rate My Poo is back! Rate funny poo photos from 1 to 10, browse Top 20 rankings and submit your own photo for approval. Free, ad-free, no account needed.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://www.rate-my-poo.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rate My Poo">
+<meta property="og:title" content="Rate My Poo | Vote for the Best Poo Photos">
+<meta property="og:description" content="The classic internet poo-rating experience returns. Vote 1–10, see the Top 20 and submit a photo for moderation. Free and ad-free.">
+<meta property="og:url" content="https://www.rate-my-poo.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rate My Poo | The Classic Poo Rating Website">
+<meta name="twitter:description" content="Browse, vote and submit the internet's funniest poo photos. Free, ad-free and no login.">
+<title>Rate My Poo | Rate &amp; Submit Funny Poo Photos</title>
 <link rel="stylesheet" href="./static/site.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://www.rate-my-poo.com/#website",
+      "url": "https://www.rate-my-poo.com/",
+      "name": "Rate My Poo",
+      "description": "A free, ad-free website for submitting and rating funny poo photos.",
+      "inLanguage": "en-GB"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://www.rate-my-poo.com/#webpage",
+      "url": "https://www.rate-my-poo.com/",
+      "name": "Rate My Poo | Rate & Submit Funny Poo Photos",
+      "isPartOf": {"@id": "https://www.rate-my-poo.com/#website"},
+      "description": "Browse, rate and submit poo photos. User submissions are reviewed before publication.",
+      "inLanguage": "en-GB"
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <header class="masthead"><div class="shell mast-inner"><a class="logo" href="#home">💩 <span>Rate My Poo!<small>THE INTERNET'S STRANGEST CLASSIC RETURNS</small></span></a><div class="sticker">EST. 2000s<br>100% AD-FREE</div></div></header>
@@ -15,7 +49,8 @@
 <div class="shell columns">
 <main>
 <div id="message" role="status" class="message" hidden></div>
-<section class="panel page" id="home-page"><h2>RATE THIS POO!</h2><div class="inner"><p class="eyebrow">You be the judge</p><h1>Beauty is in the eye of the beholder.</h1><p>Give the latest contender a rating from 1 (awful) to 10 (magnificent).</p><div id="viewer" aria-live="polite"><p>Loading the gallery…</p></div></div></section>
+<section class="panel page" id="home-page"><h2>RATE THIS POO!</h2><div class="inner"><p class="eyebrow">You be the judge</p><h1>Beauty is in the eye of the beholder.</h1><p>Give the latest contender a rating from 1 (awful) to 10 (magnificent).</p><p>Welcome to <strong>Rate My Poo</strong>, the ad-free revival of the classic poo-rating website. Browse real, moderator-approved submissions, give each photo a score from 1 to 10, and explore the community's favourites and funniest low scorers.</p>
+<p>Got a worthy contender? <a href="/how-it-works/">Learn how the ratings work</a> and <a href="/community-guidelines/">read the submission guidelines</a> before sharing your own photo. No account is required.</p><div id="viewer" aria-live="polite"><p>Loading the gallery…</p></div></div></section>
 <section class="panel page" id="list-page" hidden><h2 id="list-title">THE GALLERY</h2><div class="inner"><label for="search">Find a submission</label><input class="text-field" id="search" type="search" maxlength="80" placeholder="Search by title…"><div id="gallery" class="gallery"></div></div></section>
 <section class="panel page" id="upload-page" hidden><h2>SUBMIT YOUR POO</h2><div class="inner"><h1>Think you've got a winner?</h1><p>No account needed. Each photo is reviewed before it appears publicly.</p><form id="upload-form">
 <label for="title">Photo title (required)</label><input class="text-field" id="title" name="title" required minlength="3" maxlength="90" placeholder="The Great Escape">
@@ -33,6 +68,6 @@
 <section class="panel"><h2>POO-O-METER</h2><div class="inner meter"><strong id="total-count">—</strong><span>approved submissions</span></div></section>
 <section class="panel"><h2>NO ADS. NO NONSENSE.</h2><div class="inner"><p>All the charm of the early web. None of the flashing banners or pop-ups.</p><p class="tiny" id="api-status">Checking website connection…</p></div></section></aside>
 </div>
-<footer class="foot">RATE MY POO • AN AD-FREE REVIVAL • <button data-page="about">RULES &amp; PRIVACY</button> • <button data-page="admin">MODERATOR</button></footer>
+<footer class="foot">RATE MY POO • AN AD-FREE REVIVAL • <a href="/how-it-works/">HOW IT WORKS</a> • <a href="/community-guidelines/">COMMUNITY GUIDELINES</a> • <button data-page="about">ABOUT &amp; PRIVACY</button> • <button data-page="admin">MODERATOR</button></footer>
 <script src="./config.js"></script><script src="./static/site.js" defer></script>
 </body></html>
