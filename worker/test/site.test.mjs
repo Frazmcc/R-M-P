@@ -41,3 +41,18 @@ test("Both apex and www hostnames use managed Cloudflare Worker domains",()=>{
     assert.ok(conf.includes('pattern = "'+domain+'"\\ncustom_domain = true'.replace('\\n','\n')), "Missing managed domain: "+domain);
   }
 });
+
+test("retro favicon is linked and served from static assets",()=>{
+  const html=src("../public/index.html");
+  assert.match(html,/<link rel="icon" type="image\/svg\+xml" sizes="any" href="\/favicon\.svg\?v=1">/);
+  assert.match(html,/<link rel="icon" type="image\/png" sizes="32x32" href="\/favicon-32\.png\?v=1">/);
+  assert.match(html,/<link rel="apple-touch-icon" href="\/favicon-32\.png\?v=1">/);
+  const vector=src("../public/favicon.svg");
+  assert.match(vector,/<svg [^>]*xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+  assert.match(vector,/viewBox="0 0 64 64"/);
+  assert.doesNotMatch(vector,/<script|<foreignObject|xlink:href=|href="https?:\/\//i);
+  const raster=readFileSync(new URL("../public/favicon-32.png",import.meta.url));
+  assert.deepEqual(raster.subarray(0,8),Buffer.from("89504e470d0a1a0a","hex"));
+  assert.equal(raster.readUInt32BE(16),32);
+  assert.equal(raster.readUInt32BE(20),32);
+});
