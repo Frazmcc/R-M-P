@@ -55,6 +55,8 @@ class Report(Base):
     __table_args__ = (UniqueConstraint("entry_id", "reporter_hash"),)
 
 def create_app(database_url=None, admin_token=None, secret_key=None):
+    if database_url is None and os.getenv("RENDER") and not os.getenv("DATABASE_URL"):
+        raise RuntimeError("DATABASE_URL must be configured for Render; refusing ephemeral storage")
     database_url = database_url or os.getenv("DATABASE_URL", "sqlite:///./rmp-dev.sqlite3")
     if database_url.startswith("postgres://"):
         database_url = "postgresql+psycopg://" + database_url[len("postgres://"):]
