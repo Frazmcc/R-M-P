@@ -52,9 +52,11 @@ def test_full_submission_moderation_voting_and_reporting(tmp_path):
     assert len(c.get("/api/admin/reports",headers=ADMIN).json())==1
     assert c.post(f"/api/admin/{entry}/feature",headers=ADMIN).status_code==200
     assert len(c.get("/api/items?sort=featured").json()["items"])==1
+    assert len(c.get("/api/admin/approved",headers=ADMIN).json())==1
     assert c.post(f"/api/admin/{entry}/remove",headers=ADMIN).status_code==200
     assert c.get(f"/api/images/{entry}").status_code==404
     assert c.get("/api/items").json()["total"]==0
+    assert c.get("/api/admin/reports",headers=ADMIN).json()==[]
 
 def test_invalid_uploads_and_preapproval_voting_are_blocked(tmp_path):
     c=client(tmp_path)
@@ -89,3 +91,13 @@ def test_cors_and_vote_validation(tmp_path):
     assert c.post(f"/api/vote/{eid}",data={"score":"11"},headers=VISITOR).status_code==400
     assert c.post(f"/api/vote/{eid}",data={"score":"7"},headers={"X-Voter-ID":"not-a-uuid"}).status_code==400
     assert c.get("/api/items?sort=bogus").status_code==400
+
+def test_report_can_be_dismissed(tmp_path):
+    c=client(tmp_path)
+    eid=post_photo(c).json()["id"]
+    c.post(f"/api/admin/{eid}/approve",headers=ADMIN)
+    c.post(f"/api/report/{eid}",data={"reason":"Please check this image"},headers=VISITOR)
+    report_id=c.get("/api/admin/reports",headers=ADMIN).json()[0]["id"]
+    assert c.post(f"/api/admin/reports/{report_id}/dismiss").status_code==403
+    assert c.post(f"/api/admin/reports/{report_id}/dismiss",headers=ADMIN).status_code==200
+    assert c.get("/api/admin/reports",headers=ADMIN).json()==[]
