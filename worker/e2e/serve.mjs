@@ -19,7 +19,27 @@ const server = http.createServer(async (req,res)=>{
   }
   if(path==="/api/upload" && req.method==="POST"){json(res,{id:2,message:"Photo received. It will appear after moderator approval."},202);return;}
   if(path==="/api/vote/1" && req.method==="POST"){json(res,{message:"Vote saved"});return;}
-  if(path==="/api/admin/pending"||path==="/api/admin/reports"||path==="/api/admin/approved"){json(res,[]);return;}
+  // Local-only session simulation for browser UX tests. It deliberately does
+  // not issue production auth cookies or accept the actual Cloudflare admin key.
+  const loggedIn=(req.headers.cookie||"").includes("rmp_browser_test_session=1");
+  if(path==="/api/admin/session" && req.method==="GET"){
+    json(res,{authenticated:loggedIn,remember:loggedIn});return;
+  }
+  if(path==="/api/admin/session" && req.method==="POST"){
+    if(req.headers["x-admin-token"]!=="test-e2e-moderator-key"){
+      json(res,{detail:"Moderator credentials incorrect"},403);return;
+    }
+    res.setHeader("Set-Cookie","rmp_browser_test_session=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=2592000");
+    json(res,{authenticated:true,remember:true});return;
+  }
+  if(path==="/api/admin/logout" && req.method==="POST"){
+    res.setHeader("Set-Cookie","rmp_browser_test_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0");
+    json(res,{authenticated:false});return;
+  }
+  if(path==="/api/admin/pending"||path==="/api/admin/reports"||path==="/api/admin/approved"){
+    if(!loggedIn){json(res,{detail:"Moderator session expired. Please sign in again."},401);return;}
+    json(res,[]);return;
+  }
   if(path.startsWith("/api/")){json(res,{detail:"Not available in browser-test fixture"},404);return;}
   const localPath = resolve(root, "." + (path.endsWith("/") ? path+"index.html" : path));
   if(localPath!==root && !localPath.startsWith(root+sep)){res.writeHead(403);res.end();return;}
