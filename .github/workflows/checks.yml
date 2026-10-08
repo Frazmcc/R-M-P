@@ -1,0 +1,29 @@
+name: Site checks
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate standalone site and JavaScript syntax
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const vm=require('node:vm');
+          const assert=require('node:assert/strict');
+          const html=fs.readFileSync('index.html','utf8');
+          assert.match(html,/<!doctype html>/i);
+          assert.match(html,/<meta name="viewport"/i);
+          assert.match(html,/<main id="content"/i);
+          assert.match(html,/Rate My Poo/);
+          assert.doesNotMatch(html,/<iframe|googletag|adsbygoogle|doubleclick\.net/i);
+          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+          assert.equal(scripts.length,1);
+          new vm.Script(scripts[0][1],{filename:'inline.js'});
+          console.log('HTML and JavaScript checks passed.');
+          NODE
