@@ -61,7 +61,7 @@ Useful provider information:
 7. To use **rate-my-poo.com**, configure DNS and custom-domain HTTPS for either your chosen frontend host. Add the exact domain to `RMP_ALLOWED_ORIGINS` if needed.
 8. Leave paid upgrades/auto-overages disabled. In Render, **don't add a payment method** if you want it to suspend rather than charge after free allowances are exhausted. Keep Neon on the Free plan.
 
-**Limits:** the free database has 1 GB total, not 1 GB per user, and pictures take much of it. Production backups, abuse prevention and uptime guarantees are not provided by these free tiers. Treat this as a moderated small-scale launch; review provider quotas regularly.
+**Limits:** the free database has 1 GB total, not 1 GB per user, and pictures take much of it. The API caps stored photo bytes at **600 MB** to leave substantial space for votes, indexes, reports and database overhead. It returns HTTP 507 and stops accepting new submissions at the cap rather than silently exceeding the budget. This is not an exact PostgreSQL on-disk quota measurement; monitor actual Neon usage separately. Production backups, abuse prevention and uptime guarantees are not provided by these free tiers. Treat this as a moderated small-scale launch; review provider quotas regularly.
 
 Environment variables:
 
